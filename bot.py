@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from game_engine import Player, Game
-from config import token
+from config import *
 
 class Client(discord.Client):
     async def on_ready(self):
@@ -32,8 +32,8 @@ async def on_ready():
     global members
     global main_channel
     
-    server = bot.get_guild(1025162671068303391) #get dynamically???
-    main_channel = bot.get_channel(1025162671538057306) #also get dynamically
+    server = bot.get_guild(SERVER_ID) #TODO get dynamically
+    main_channel = bot.get_channel(GENERAL_ID) #TODO also get dynamically
     print(f'We have logged in as {bot.user} in Server: {server.name}')
     print(f"General Channel for {server.name} is denoted as: {main_channel.name}\n\n")
 
@@ -81,13 +81,13 @@ async def test(ctx): #start command
 
 @bot.command()
 async def start(ctx): 
-    '''only admins are allowed to use this command'''
+    '''only admins are allowed to use this command, also game.players and members are pointing at the same object'''
     global game, members
 
     if game is None : 
         members.__delitem__(0) #removing the first attribute which is the bot itself
 
-        game = Game(members)
+        game = Game(members) 
         members = game.assignContracts()
         
         print(game._contracts())
@@ -115,7 +115,6 @@ async def endgame(ctx):
 async def add(ctx): 
     '''adds a player to the game'''
 
-    #printed the removed player again ... 
     global game, members
     user = bot.get_user(int(ctx.message.content[7:-1]))
     p = Player(user.id, user.name, user.discriminator)
@@ -123,10 +122,8 @@ async def add(ctx):
     if p in members: 
         await ctx.send("Player is already in the game!") #change to binary search eventually
     else: 
-        members.append(p)
         game.addPlayer(p)
         await ctx.send(f"Welcome to the game @{user.name}")
-    
 
         members = game.assignContracts() #TODO this is where things break
         
@@ -147,7 +144,7 @@ async def remove(ctx):
     p = Player(user.id, user.name, user.discriminator)
 
     if p in members: 
-        members.remove(p)
+
         game.removePlayer(p)
         await ctx.send(f"@{user.name} has been removed from the game")
 
@@ -175,17 +172,6 @@ async def shuffle(ctx):
     '''Shuffles all the contracts'''
     pass 
 
-    #584825567208144917
-
-# @bot.command()
-# async def rules(ctx): 
-#     '''returns the stats of the game'''
-#     pass
-
-# @bot.command()
-# async def cmds(ctx): 
-#     '''returns the commands of the game'''
-#     pass
 
 
-bot.run(token)
+bot.run(BOT_TOKEN)

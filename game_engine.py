@@ -34,9 +34,13 @@ class Player():
     === Attributes === 
     
     _id: the id used by discord to identify a user
+
     username: The Discord username used by a player, it is in the form of Username#0000
+
     net_worth: how much money the player has accumulated during the game
+
     secret: is given to the contractor if you are unalived, must remain a secret!
+
     target: the person you have to unalive to survive!
 
     === types === 
@@ -105,6 +109,15 @@ class Game():
     === Attributes === 
     players: list of all the active players in the game
 
+    manifest: the save file for the game, also used to load a game from any state
+
+    active: The number of players that are still alive 
+
+    ded: The number of players that are dead 
+
+    start: the UTC time of when the game started 
+
+    winner: The player who wins the game
     '''
 
     def __init__(self, players:list[Player]) -> None:
@@ -121,9 +134,9 @@ class Game():
         A string representation of the game, looks something like this: 
 
         Game start: 2022-10-03 10:24:13.694413
-        Players: [Ténèbres#4025, Katote#0006, Alpha Swine#8938, ScoobyDoo-Lunchables#0095, NotPerryThePlatypus#2520, Exia#3417]
-        Active Agents: 10
-        Fallen Agents: 3
+        Players: [P1#4025, P2#0006, P3#8938, P4#0095, P5#2520, P6#3417]
+        Active Agents: 4
+        Fallen Agents: 2
         ''' 
         return f"Game start: {self.start}\nPlayers: {self.players}\nActive Agents: {self.active}\nFallen Agents: {self.ded}"
     
@@ -145,7 +158,7 @@ class Game():
     
     def removePlayer(self, p:Player) -> None: 
         '''Removes <p> from <self.players> which removes them from the game'''
-        print(self.players)
+        print(self.players, "engine")
         self.players.remove(p)
 
     def saveGame(self) -> bool: 
@@ -160,6 +173,7 @@ class Game():
         '''Instantiates a new game from <state> which is a string interpretation of all the contarcts of the game when it was saved.
         <state> should be in the form: 
         'assassin->target,assassin->target, ... ,assassin->target'
+        
         === RETURNS === 
         True - if the game was loaded
         False - if there is an error
@@ -208,7 +222,8 @@ class Game():
         return str(self.winner)
     
     def assignContracts(self) -> None: 
-        '''TODO desctiption'''
+        '''Randomly shuffles <self.players> and loops through the list assigning n to n+1, 
+        then assigns the last player to the first '''
 
         random.shuffle(self.players)
 
