@@ -172,6 +172,16 @@ async def shuffle(ctx):
     '''Shuffles all the contracts'''
     pass 
 
+@bot.command()
+async def rules(ctx): 
+    '''returns the stats of the game'''
+    pass
+
+@bot.command()
+async def cmds(ctx): 
+    '''returns the commands of the game'''
+    pass
+
 
 
 bot.run(BOT_TOKEN)
