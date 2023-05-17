@@ -73,7 +73,6 @@ async def complete(ctx):
             await ctx.send(f"Your new target is {player[0].getTarget()}")
 
 
-
 @bot.command()
 async def start(ctx): 
     '''only admins are allowed to use this command, also game.players and members are pointing at the same object'''
@@ -86,8 +85,8 @@ async def start(ctx):
 
             game = Game(members) 
             members = game.assignContracts()
-            
-            print(game._contracts())
+        
+            # print(game._contracts())
             
             await ctx.send("Assigning Targets...")
             for m in members: 
@@ -189,7 +188,8 @@ async def t(ctx):
 @bot.command() 
 async def debug(ctx):
     '''See all running games and all contracts in the back end'''
-    pass 
+    global game
+    print("{}\n\nContracts:\n{}".format(game, game._contracts())) 
 
 @bot.command()
 async def shuffle(ctx):
