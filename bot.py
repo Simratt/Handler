@@ -18,7 +18,6 @@ intents.members = True
 bot = commands.Bot(command_prefix='`', intents=intents)
 members = []
 dead = []
-roles = []
 
 server = None
 game = None
@@ -37,8 +36,11 @@ async def on_ready():
     print(f'We have logged in as {bot.user} in Server: {server.name}')
     print(f"General Channel for {server.name} is denoted as: {main_channel.name}\n\n")
 
+    memRoles = []
     for i in server.members: 
-        members.append(Player(i.id,i.name,i.discriminator))
+        [memRoles.append(r.name) for r in i.roles]
+        members.append(Player(i.id,i.name,i.discriminator, memRoles))
+        memRoles = []  
         
 
 
@@ -71,96 +73,118 @@ async def complete(ctx):
             await ctx.send(f"Your new target is {player[0].getTarget()}")
 
 
-@bot.command() 
-async def test(ctx): #start command
-    #584825567208144917
-    # user = bot.get_user(584825567208144917)
-    # await user.send('Uwu')
-    # print(members)
-    pass
 
 @bot.command()
 async def start(ctx): 
     '''only admins are allowed to use this command, also game.players and members are pointing at the same object'''
     global game, members
 
-    if game is None : 
-        members.__delitem__(0) #removing the first attribute which is the bot itself
+    auth = ctx.author.roles
+    if await check_auth(auth) is True:
+        if game is None : 
+            members.__delitem__(0) #removing the first attribute which is the bot itself
 
-        game = Game(members) 
-        members = game.assignContracts()
-        
-        print(game._contracts())
-        
-        await ctx.send("Assigning Targets...")
-        for m in members: 
-            user = bot.get_user(m.getId())
-            await user.send(f"Your Secret Token is: {m.getSecret()}\nKeep it secret")
-            await user.send(f"Your Target is {str(m.getTarget())}")
-        
-        await ctx.send("Targets Assigned, Good luck...")
+            game = Game(members) 
+            members = game.assignContracts()
+            
+            print(game._contracts())
+            
+            await ctx.send("Assigning Targets...")
+            for m in members: 
+                user = bot.get_user(m.getId())
+                await user.send(f"Your Secret Token is: {m.getSecret()}\nKeep it secret")
+                await user.send(f"Your Target is {str(m.getTarget())}")
+            
+            await ctx.send("Targets Assigned, Good luck...")
+        else: 
+            await ctx.send("A game is already in progress")
     else: 
-        await ctx.send("A game is already in progress")
+        await ctx.send("Only Admins are allowed to use this command")
+
 
 @bot.command()
 async def endgame(ctx): 
     '''only admins are allowed to use this command'''
     global game, dead, is_over
 
-    game, dead, is_over = None, [], False
-
-    await ctx.send("All contracts deactivated, thank you for playing")
+    auth = ctx.author.roles
+    if await check_auth(auth) is True:
+        game, dead, is_over = None, [], False
+        await ctx.send("All contracts deactivated, thank you for playing")
+    else: 
+        await ctx.send("Only Admins are allowed to use this command")
 
 @bot.command()
 async def add(ctx): 
     '''adds a player to the game'''
-
     global game, members
-    user = bot.get_user(int(ctx.message.content[7:-1]))
-    p = Player(user.id, user.name, user.discriminator)
 
-    if p in members: 
-        await ctx.send("Player is already in the game!") #change to binary search eventually
+    auth = ctx.author.roles
+    if await check_auth(auth) is True:
+        user = bot.get_user(int(ctx.message.content[7:-1]))
+        p = Player(user.id, user.name, user.discriminator)
+
+        if p in members: 
+            await ctx.send("Player is already in the game!") #change to binary search eventually
+        else: 
+            game.addPlayer(p)
+            await ctx.send(f"Welcome to the game @{user.name}")
+
+            members = game.assignContracts() #TODO this is where things break
+            
+            print(game._contracts())
+            
+            await ctx.send("Reassigning Targets...")
+            for m in members: 
+                user = bot.get_user(m.getId())
+                await user.send(f"Your Target is {str(m.getTarget())}")
+            
+            await ctx.send("Targets Assigned, Good luck...")
     else: 
-        game.addPlayer(p)
-        await ctx.send(f"Welcome to the game @{user.name}")
+        await ctx.send("Only Admins are allowed to use this command")
 
-        members = game.assignContracts() #TODO this is where things break
-        
-        print(game._contracts())
-        
-        await ctx.send("Reassigning Targets...")
-        for m in members: 
-            user = bot.get_user(m.getId())
-            await user.send(f"Your Target is {str(m.getTarget())}")
-        
-        await ctx.send("Targets Assigned, Good luck...")
 
 @bot.command()
 async def remove(ctx): 
-
+    '''If player is not admin, they will not be allowed to remove other people from the game'''
     global game, members
     user = bot.get_user(int(ctx.message.content[10:-1]))
     p = Player(user.id, user.name, user.discriminator)
+    
+    auth = ctx.author.roles
+    if await check_auth(auth) is True:
+        if p in members: 
 
-    if p in members: 
+            game.removePlayer(p)
+            await ctx.send(f"@{user.name} has been removed from the game")
 
-        game.removePlayer(p)
-        await ctx.send(f"@{user.name} has been removed from the game")
+            members = game.assignContracts()
+            
+            print(game._contracts())
+            
+            await ctx.send("Reassigning Targets...")
+            for m in members: 
+                user = bot.get_user(m.getId())
+                await user.send(f"Your Target is {str(m.getTarget())}")
+            
+            await ctx.send("Targets Assigned, Good luck...")
 
-        members = game.assignContracts()
-        
-        print(game._contracts())
-        
-        await ctx.send("Reassigning Targets...")
-        for m in members: 
-            user = bot.get_user(m.getId())
-            await user.send(f"Your Target is {str(m.getTarget())}")
-        
-        await ctx.send("Targets Assigned, Good luck...")
-
+        else: 
+            await ctx.send("Player is already removed from the game!")
     else: 
-        await ctx.send("Player is already removed from the game!")
+        await ctx.send("Only Admins are allowed to use this command")
+    
+
+@bot.command()
+async def t(ctx): 
+    '''displays the roles of the user sending the command'''
+    auth = ctx.author.roles
+    print("{} {} {} {}".format(ctx.author, 
+                            [role.name == "Admin" for role in auth], 
+                            [role.name for role in auth[1:]],
+                            auth
+                )
+        )
 
 @bot.command() 
 async def debug(ctx):
@@ -182,6 +206,22 @@ async def cmds(ctx):
     '''returns the commands of the game'''
     pass
 
+
+@bot.command() 
+async def test(ctx): #start command
+    #584825567208144917
+    # user = bot.get_user(584825567208144917)
+    # await user.send('Uwu')
+    # print(members)
+    pass
+
+
+async def check_auth(roles: list) -> bool:
+    '''This function checks if 'Admin' is in <roles>'''
+    for r in roles: 
+        if r.name == "Admin":
+            return True
+    return False
 
 
 bot.run(BOT_TOKEN)

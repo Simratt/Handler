@@ -43,21 +43,25 @@ class Player():
 
     target: the person you have to unalive to survive!
 
+    roles: A list of roles that the player has in the server
+
     === types === 
     _id: int
     username: string
     net_worth: int
     secret: int
     target: Player
+    roles: List
     '''
 
-    def __init__(self, id:int, name:str, disc:str) -> None:
+    def __init__(self, id:int, name:str, disc:str, roles: list[str]) -> None:
         '''
-        <id> Discord id, <name> Discord username before #, <disc> the Discriminator i.e numbers after #
+        <id> Discord id, <name> Discord username before #, <disc> the Discriminator i.e numbers after #, <roles> Discord Roles assigned to this player
         This function instantiates a new Player object
         '''
         self._id = int(id)
         self.username = f"{name}#{disc}"
+        self.roles = roles
         self.net_worth = 0 
         self.secret = random.randint(100, 999)
         self.target = None
@@ -73,6 +77,10 @@ class Player():
     def __eq__(self, other) -> bool: 
         ''' returns true if this Player == Other'''
         return self._id == other._id
+
+    def getRoles(self) -> list: 
+        '''returns a string of roles that this player has in the Discord server'''
+        return self.roles
 
     def getId(self) -> int:
         ''' Returns the _id attribute to send to the bot to fetch the user '''
@@ -101,6 +109,8 @@ class Player():
         '''deletes <self.target> for this player'''
         self.target = None
 
+    def isAdmin(self) -> bool: 
+        return "Admin" in self.roles
 
 class Game(): 
     '''
