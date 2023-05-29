@@ -86,6 +86,9 @@ class Player():
         ''' Returns the _id attribute to send to the bot to fetch the user '''
         return self._id
     
+    def setId(self, newId:int) -> None: 
+        '''set <newId> as <self._id>'''
+        self._id = newId
     def getSecret(self) -> int: 
         return self.secret
     
@@ -133,7 +136,7 @@ class Game():
     def __init__(self, players:list[Player]) -> None:
         '''Initalizes all the variables needed for the game to run'''
         self.players = players
-        self.manifest = 'path/to/csvfile'
+        self.manifest = 'path/to/txt'
         self.active = len(players)
         self.ded = 0
         self.start = datetime.now()
@@ -177,7 +180,9 @@ class Game():
         True - if the game was saved
         False - if there is an error
         '''
-        pass
+        f = open('gameLog.txt', 'w')
+        f.write(self.__str__())
+        f.write("\n"+self._contracts())
     
     def loadGame(self, state:str) -> bool: 
         '''Instantiates a new game from <state> which is a string interpretation of all the contarcts of the game when it was saved.
@@ -249,4 +254,15 @@ class Game():
         
         return self.players
 
-    
+    def uniqueID(self) -> None: 
+        '''go through all the players and check to see if the Player._id is unique. If not, change it.'''
+        
+        idList = []
+        
+        for p in self.players:   
+            while p.getId() in idList: 
+                p.setId(random.randint(100, 999))
+            
+            idList.append(p.getId())
+
+                

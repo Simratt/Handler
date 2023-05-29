@@ -84,8 +84,9 @@ async def start(ctx):
             members.__delitem__(0) #removing the first attribute which is the bot itself
 
             game = Game(members) 
+            game.uniqueID()
             members = game.assignContracts()
-        
+            game.saveGame()
             # print(game._contracts())
             
             await ctx.send("Assigning Targets...")
