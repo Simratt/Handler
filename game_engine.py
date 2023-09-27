@@ -171,29 +171,28 @@ class Game():
     
     def removePlayer(self, p:Player) -> None: 
         '''Removes <p> from <self.players> which removes them from the game'''
-        print(self.players, "engine")
         self.players.remove(p)
 
-    def saveGame(self) -> bool: 
-        '''Exports all the contracts to text file, esentially saving the game
-        === RETURNS === 
-        True - if the game was saved
-        False - if there is an error
-        '''
-        f = open('gameLog.txt', 'w')
-        f.write(self.__str__())
-        f.write("\n"+self._contracts())
+    # def saveGame(self) -> bool: 
+    #     '''Exports all the contracts to text file, esentially saving the game
+    #     === RETURNS === 
+    #     True - if the game was saved
+    #     False - if there is an error
+    #     '''
+    #     f = open('gameLog.txt', 'w')
+    #     f.write(self.__str__())
+    #     f.write("\n"+self._contracts())
     
-    def loadGame(self, state:str) -> bool: 
-        '''Instantiates a new game from <state> which is a string interpretation of all the contarcts of the game when it was saved.
-        <state> should be in the form: 
-        'assassin->target,assassin->target, ... ,assassin->target'
+    # def loadGame(self, state:str) -> bool: 
+    #     '''Instantiates a new game from <state> which is a string interpretation of all the contarcts of the game when it was saved.
+    #     <state> should be in the form: 
+    #     'assassin->target,assassin->target, ... ,assassin->target'
         
-        === RETURNS === 
-        True - if the game was loaded
-        False - if there is an error
-        '''
-        pass
+    #     === RETURNS === 
+    #     True - if the game was loaded
+    #     False - if there is an error
+    #     '''
+    #     pass
     
     def returnById(self, id) -> Player or None:
         for p in self.players: 

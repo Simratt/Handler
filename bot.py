@@ -42,8 +42,6 @@ async def on_ready():
         members.append(Player(i.id,i.name,i.discriminator, memRoles))
         memRoles = []  
         
-
-
 @bot.command()
 async def complete(ctx):
     '''Checks if the player who is invoking the command is actually terminating the right target''' 
@@ -72,7 +70,6 @@ async def complete(ctx):
             await main_channel.send(f"{player[1]} has died, {game.active} players left")
             await ctx.send(f"Your new target is {player[0].getTarget()}")
 
-
 @bot.command()
 async def start(ctx): 
     '''only admins are allowed to use this command, also game.players and members are pointing at the same object'''
@@ -86,7 +83,7 @@ async def start(ctx):
             game = Game(members) 
             game.uniqueID()
             members = game.assignContracts()
-            game.saveGame()
+            # game.saveGame()
             # print(game._contracts())
             
             await ctx.send("Assigning Targets...")
@@ -100,7 +97,6 @@ async def start(ctx):
             await ctx.send("A game is already in progress")
     else: 
         await ctx.send("Only Admins are allowed to use this command")
-
 
 @bot.command()
 async def endgame(ctx): 
@@ -143,7 +139,6 @@ async def add(ctx):
     else: 
         await ctx.send("Only Admins are allowed to use this command")
 
-
 @bot.command()
 async def remove(ctx): 
     '''If player is not admin, they will not be allowed to remove other people from the game'''
@@ -174,7 +169,6 @@ async def remove(ctx):
     else: 
         await ctx.send("Only Admins are allowed to use this command")
     
-
 @bot.command()
 async def t(ctx): 
     '''displays the roles of the user sending the command'''
@@ -195,7 +189,14 @@ async def debug(ctx):
 @bot.command()
 async def shuffle(ctx):
     '''Shuffles all the contracts'''
-    pass 
+    global game, members
+    auth = ctx.author.roles
+
+    if await check_auth(auth) is True:
+        pass
+    else: 
+        await ctx.send("Only Admins are allowed to use this command")
+    
 
 @bot.command()
 async def rules(ctx): 
@@ -207,7 +208,6 @@ async def cmds(ctx):
     '''returns the commands of the game'''
     pass
 
-
 @bot.command() 
 async def test(ctx): #start command
     #584825567208144917
@@ -215,7 +215,6 @@ async def test(ctx): #start command
     # await user.send('Uwu')
     # print(members)
     pass
-
 
 async def check_auth(roles: list) -> bool:
     '''This function checks if 'Admin' is in <roles>'''
